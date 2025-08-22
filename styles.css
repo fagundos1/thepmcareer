@@ -630,3 +630,60 @@ html {
     transform: scale(1.1);
     transition: var(--transition);
 }
+
+/* Performance Optimizations */
+* {
+    will-change: auto;
+}
+
+.feature-card,
+.step,
+.download-btn {
+    will-change: transform;
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .hero-buttons,
+    .download-buttons {
+        display: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .hero {
+        padding: 20px 0;
+        min-height: auto;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-blue: #ffffff;
+        --secondary-blue: #e0e0e0;
+        --accent-blue: #c0c0c0;
+        --primary-yellow: #ffff00;
+        --secondary-yellow: #e6e600;
+        --accent-yellow: #cccc00;
+        --text-dark: #000000;
+        --text-light: #333333;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+}

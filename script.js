@@ -216,7 +216,6 @@ document.head.appendChild(notificationStyles);
 
 // Parallax effect for hero section
 window.addEventListener('scroll', function() {
-    const scrolled = window.pageYOffset;
     const hero = document.querySelector('.hero');
     if (hero) {
         const rate = scrolled * -0.5;
@@ -340,4 +339,98 @@ function handleSwipe() {
             console.log('Swiped right');
         }
     }
+}
+
+// Performance optimizations
+let ticking = false;
+
+function updateOnScroll() {
+    // Update scroll progress
+    const progressBar = document.querySelector('.scroll-progress');
+    if (progressBar) {
+        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        progressBar.style.width = scrolled + '%';
+    }
+    
+    // Update navbar
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        if (window.scrollY > 50) {
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+        } else {
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+        }
+    }
+    
+    ticking = false;
+}
+
+function requestTick() {
+    if (!ticking) {
+        requestAnimationFrame(updateOnScroll);
+        ticking = true;
+    }
+}
+
+// Optimized scroll event listener
+window.addEventListener('scroll', requestTick, { passive: true });
+
+// Service Worker registration for PWA capabilities
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+
+// Add offline detection
+window.addEventListener('online', function() {
+    showNotification('You are back online!', 'success');
+});
+
+window.addEventListener('offline', function() {
+    showNotification('You are currently offline', 'info');
+});
+
+// Add page visibility API support
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // Page is hidden, pause animations if needed
+        document.body.classList.add('page-hidden');
+    } else {
+        // Page is visible, resume animations
+        document.body.classList.remove('page-hidden');
+    }
+});
+
+// Add error boundary
+window.addEventListener('error', function(e) {
+    console.error('JavaScript error:', e.error);
+    // You can send error reports to your analytics service here
+});
+
+// Add unhandled promise rejection handler
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled promise rejection:', e.reason);
+    // You can send error reports to your analytics service here
+});
+
+// Performance monitoring
+const performanceObserver = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+        if (entry.entryType === 'navigation') {
+            console.log('Page load time:', entry.loadEventEnd - entry.loadEventStart, 'ms');
+        }
+    }
+});
+
+if ('PerformanceObserver' in window) {
+    performanceObserver.observe({ entryTypes: ['navigation'] });
 }
